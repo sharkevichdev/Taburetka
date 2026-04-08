@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+* {
+	font-family: CustomInter, sans-serif;
+}
+
+@theme {
+	--bg: #050505;
+	--primary: #bebebe;
+	--accent: #eeeeee;
+	--secondary: #555555;
+	--border: #1c1c1c;
+	--red: #b63737;
+}
+
+html,
+body {
+	@apply h-full bg-(--bg);
+}

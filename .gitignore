@@ -1,0 +1,10 @@
+.svelte-kit
+.yarn
+node_modules
+.TODO
+WORKFLOW.md
+prototype
+src-tauri/target
+build
+.git
+.vscode
