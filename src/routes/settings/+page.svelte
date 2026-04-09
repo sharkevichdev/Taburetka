@@ -42,13 +42,13 @@
 	<div class="flex size-full flex-col">
 		<div class="flex size-full">
 			<Select variant="in" bind:value={app.inDevice} bind:options={inDeviceOptions} />
-			<div class="h-full w-[1px] bg-(--border)"></div>
+			<div class="h-full w-px bg-(--border)"></div>
 			<Slider bind:value={app.micVolume} />
 		</div>
-		<div class="h-[1px] w-full bg-(--border)"></div>
+		<div class="h-px w-full bg-(--border)"></div>
 		<div class="flex size-full">
 			<Select variant="out" bind:value={app.outDevice} bind:options={outDeviceOptions} />
-			<div class="h-full w-[1px] bg-(--border)"></div>
+			<div class="h-full w-px bg-(--border)"></div>
 			<Slider bind:value={app.hpVolume} />
 		</div>
 	</div>

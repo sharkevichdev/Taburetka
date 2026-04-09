@@ -56,7 +56,7 @@
 			]}
 		>
 			{#if options.length < 5}
-				<div class="h-[1px] min-h-[1px] w-full bg-(--border)"></div>
+				<div class="h-px min-h-px w-full bg-(--border)"></div>
 			{/if}
 
 			{#each options as option, i}
@@ -92,7 +92,7 @@
 					{/if}
 				</div>
 				{#if !(i == options.length - 1) || i < 5}
-					<div class="h-[1px] min-h-[1px] w-full bg-(--border)"></div>
+					<div class="h-px min-h-px w-full bg-(--border)"></div>
 				{/if}
 			{/each}
 		</div>

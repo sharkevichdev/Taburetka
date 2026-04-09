@@ -5,7 +5,7 @@
 
 <div class="flex size-full">
 	<UserCard bind:username={app.username} />
-	<div class="h-full w-[1px] bg-(--border)"></div>
+	<div class="h-full w-px bg-(--border)"></div>
 	<div class="flex h-full w-min flex-col">
 		<Button>
 			<span class="size-max">Share room</span>
@@ -29,7 +29,7 @@
 				/>
 			</svg>
 		</Button>
-		<div class="h-[1px] w-full bg-(--border)"></div>
+		<div class="h-px w-full bg-(--border)"></div>
 		<Button color="accent">
 			<span class="size-max">Paste room</span>
 			<svg

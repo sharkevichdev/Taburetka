@@ -34,7 +34,7 @@
 		username={callState.other.username}
 	/>
 </div>
-<div class="h-[1px] w-full bg-(--border)"></div>
+<div class="h-px w-full bg-(--border)"></div>
 <div class="flex h-max w-full">
 	<MenuButton
 		variant="mic"
@@ -49,7 +49,7 @@
 			}
 		}}
 	/>
-	<div class="h-full w-[1px] bg-(--border)"></div>
+	<div class="h-full w-px bg-(--border)"></div>
 	<MenuButton
 		variant="hp"
 		bind:isOn={callState.me.hp}
@@ -62,7 +62,7 @@
 			}
 		}}
 	/>
-	<div class="h-full w-[1px] bg-(--border)"></div>
+	<div class="h-full w-px bg-(--border)"></div>
 	<MenuButton
 		variant="exit"
 		onclick={() => {
