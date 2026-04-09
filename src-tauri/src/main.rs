@@ -4,7 +4,7 @@
 )]
 
 use cpal::traits::{DeviceTrait, HostTrait};
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
@@ -73,11 +73,31 @@ fn copy(src: String, dst: String) {
     copy_dir_all(source_path, destination_path).unwrap();
 }
 
+#[derive(Debug, PartialEq)]
+enum DeviceDirection {
+    Input,
+    Output,
+}
+
+impl Serialize for DeviceDirection {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let v = match self {
+            DeviceDirection::Input => 0u8,
+            DeviceDirection::Output => 1u8,
+        };
+        serializer.serialize_u8(v)
+    }
+}
+
 #[derive(Serialize)]
 struct AudioDeviceInfo {
     name: String,
     id: Option<String>,
-    is_input: bool,
+    driver: Option<String>,
+    direction: DeviceDirection,
     is_default: bool,
 }
 
@@ -109,13 +129,15 @@ fn list_audio_devices() -> Result<Vec<AudioDeviceInfo>, String> {
     let mut result = Vec::new();
 
     for device in devices {
-        let name = match device.description() {
-            Ok(desc) => desc.name().to_string(),
+        let description = match device.description() {
+            Ok(desc) => desc,
             Err(e) => {
-                eprintln!("Failed to get DeviceName: {e}");
+                eprintln!("Failed to get DeviceDescription: {e}");
                 continue;
             }
         };
+
+        let name = description.name().to_string();
 
         let id = match device.id() {
             Ok(id) => Some(id.to_string()),
@@ -124,6 +146,8 @@ fn list_audio_devices() -> Result<Vec<AudioDeviceInfo>, String> {
                 None
             }
         };
+
+        let driver = description.driver().map(|s| s.to_string());
 
         let is_input = device.default_input_config().is_ok()
             || device
@@ -137,13 +161,20 @@ fn list_audio_devices() -> Result<Vec<AudioDeviceInfo>, String> {
                 .map(|mut c| c.next().is_some())
                 .unwrap_or(false);
 
+        let direction = if is_input && !is_output {
+            DeviceDirection::Input
+        } else {
+            DeviceDirection::Output
+        };
+
         let is_default = default_input_name.as_deref().is_some_and(|n| n == name)
             || default_output_name.as_deref().is_some_and(|n| n == name);
 
         result.push(AudioDeviceInfo {
             name,
             id,
-            is_input: is_input && !is_output,
+            direction,
+            driver,
             is_default,
         });
     }

@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { Select, Slider } from "$lib";
+	import { Select, Slider, SelectDevice } from "$lib";
 	import { app } from "$lib/shared.svelte";
 	import { invoke } from "@tauri-apps/api/core";
 
 	type AudioDeviceInfo = {
 		name: string;
 		id: string | null;
-		is_input: boolean;
+		driver: string | null;
+		direction: number;
 		is_default: boolean;
 	};
 
@@ -23,33 +24,47 @@
 		return list;
 	}
 
-	async function get_devices() {
-		const devices = await invoke<AudioDeviceInfo[]>("list_audio_devices");
+	function moveSelectedToFront(list: AudioDeviceInfo[]) {
+		const index = list.findIndex((d) => app.inDevice);
 
-		inDeviceOptions = moveDefaultToFront(devices.filter((d) => d.is_input)).map((d) =>
-			d.is_default ? `Default (${d.name})` : d.name,
-		);
+		if (index > 0) {
+			[list[0], list[index]] = [list[index], list[0]];
+		}
 
-		outDeviceOptions = moveDefaultToFront(devices.filter((d) => !d.is_input)).map((d) =>
-			d.is_default ? `Default (${d.name})` : d.name,
-		);
+		return list;
 	}
 
-	get_devices();
+	function formatDevices(devices: AudioDeviceInfo[]) {
+		return moveDefaultToFront(devices).map((d) => {
+			const name = `${d.name}${d.driver ? ` (${d.driver})` : ""}`.trim().replace(/\s+/g, " ");
+			return d.is_default ? `Default (${name})` : name;
+		});
+	}
+
+	async function getDevices() {
+		const devices = await invoke<AudioDeviceInfo[]>("list_audio_devices");
+
+		inDeviceOptions = formatDevices(devices.filter((d) => !d.direction));
+		outDeviceOptions = formatDevices(devices.filter((d) => d.direction));
+	}
+
+	getDevices();
 </script>
 
 <div class="flex size-full flex-col text-(--accent)">
 	<div class="flex size-full flex-col">
-		<div class="flex size-full">
-			<Select variant="in" bind:value={app.inDevice} bind:options={inDeviceOptions} />
-			<div class="h-full w-px bg-(--border)"></div>
-			<Slider bind:value={app.micVolume} />
-		</div>
+		<SelectDevice
+			bind:selected={app.inDevice}
+			variant="in"
+			bind:options={inDeviceOptions}
+			bind:value={app.micVolume}
+		/>
 		<div class="h-px w-full bg-(--border)"></div>
-		<div class="flex size-full">
-			<Select variant="out" bind:value={app.outDevice} bind:options={outDeviceOptions} />
-			<div class="h-full w-px bg-(--border)"></div>
-			<Slider bind:value={app.hpVolume} />
-		</div>
+		<SelectDevice
+			bind:selected={app.outDevice}
+			variant="out"
+			bind:options={outDeviceOptions}
+			bind:value={app.hpVolume}
+		/>
 	</div>
 </div>

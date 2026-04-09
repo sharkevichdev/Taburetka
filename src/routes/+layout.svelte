@@ -8,10 +8,6 @@
 
 <div class="flex size-full flex-col text-(--accent)">
 	<Header />
-	<!-- {app.hpVolume}
-	{app.micVolume}
-	{app.inDevice}
-	{app.outDevice} -->
 	<div class="flex size-full flex-col">
 		{@render children?.()}
 	</div>
