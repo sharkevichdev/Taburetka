@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { app } from "$lib/shared.svelte";
+	import type { AppState } from "$lib/shared.svelte";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
 
 	const appWindow = getCurrentWindow();
@@ -13,11 +13,9 @@
 		<span class="size-max text-[21px] font-semibold tracking-[-0.03rem] text-(--primary)"
 			>{window.location.href.match(/settings/) ? "Settings" : "Taburetka"}</span
 		>
-		{#if app.ping > 0}
-			<span class="size-max text-[16px] font-normal tracking-[-0.03rem] text-(--secondary)"
-				>{app.ping}ms</span
-			>
-		{/if}
+		<span class="size-max text-[16px] font-normal tracking-[-0.03rem] text-(--secondary)"
+			>{window.location.href.match(/call/) ? "9999ms" : ""}</span
+		>
 	</div>
 	<div class="flex size-max gap-[11px]">
 		{#if !window.location.href.match(/settings/)}
@@ -52,8 +50,9 @@
 				</svg>
 			</button>
 		{:else}
+			<!-- todo inCall onclick handling-->
 			<button
-				onclick={() => (window.location.href = app.inCall ? "/call" : "/")}
+				onclick={() => (window.location.href = "/")}
 				class="size-[26px] cursor-pointer"
 				aria-label="Back"
 			>

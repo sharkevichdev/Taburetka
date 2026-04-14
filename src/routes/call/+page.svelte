@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { MenuButton, UserCard } from "$lib";
-	import { app } from "$lib/shared.svelte";
+	import { AppContext } from "$lib/shared.svelte";
+
+	const appState = AppContext.get();
 
 	let callState = $state({
 		me: {
@@ -24,14 +26,18 @@
 		mic={callState.me.mic}
 		hp={callState.me.hp}
 		speaking={callState.me.speaking}
-		bind:username={app.username}
+		initial={appState.username}
+		setter={appState.setUsername}
 	/>
 	<UserCard
 		variant="other"
 		mic={callState.other.mic}
 		hp={callState.other.hp}
 		speaking={callState.other.speaking}
-		username={callState.other.username}
+		initial={callState.other.username}
+		setter={(value: string) => {
+			callState.other.username = value;
+		}}
 	/>
 </div>
 <div class="h-px w-full bg-(--border)"></div>

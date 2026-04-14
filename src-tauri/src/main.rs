@@ -8,12 +8,14 @@ use serde::{Serialize, Serializer};
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::{fs, io};
+use uuid::Uuid;
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 use zip::ZipWriter;
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![copy, zip, list_audio_devices])
@@ -73,31 +75,18 @@ fn copy(src: String, dst: String) {
     copy_dir_all(source_path, destination_path).unwrap();
 }
 
-#[derive(Debug, PartialEq)]
-enum DeviceDirection {
+#[derive(Serialize)]
+enum AudioDeviceDirection {
     Input,
     Output,
-}
-
-impl Serialize for DeviceDirection {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let v = match self {
-            DeviceDirection::Input => 0u8,
-            DeviceDirection::Output => 1u8,
-        };
-        serializer.serialize_u8(v)
-    }
 }
 
 #[derive(Serialize)]
 struct AudioDeviceInfo {
     name: String,
-    id: Option<String>,
+    id: String,
     driver: Option<String>,
-    direction: DeviceDirection,
+    direction: AudioDeviceDirection,
     is_default: bool,
 }
 
@@ -140,10 +129,10 @@ fn list_audio_devices() -> Result<Vec<AudioDeviceInfo>, String> {
         let name = description.name().to_string();
 
         let id = match device.id() {
-            Ok(id) => Some(id.to_string()),
+            Ok(id) => id.to_string(),
             Err(e) => {
                 eprintln!("Failed to get DeviceId for {}: {e}", name);
-                None
+                continue;
             }
         };
 
@@ -162,9 +151,9 @@ fn list_audio_devices() -> Result<Vec<AudioDeviceInfo>, String> {
                 .unwrap_or(false);
 
         let direction = if is_input && !is_output {
-            DeviceDirection::Input
+            AudioDeviceDirection::Input
         } else {
-            DeviceDirection::Output
+            AudioDeviceDirection::Output
         };
 
         let is_default = default_input_name.as_deref().is_some_and(|n| n == name)

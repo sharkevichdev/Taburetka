@@ -22,7 +22,8 @@
 		mic?: boolean;
 		hp?: boolean;
 		speaking?: boolean;
-		username: string;
+		initial: string;
+		setter: (value: string) => void;
 	};
 </script>
 
@@ -32,13 +33,14 @@
 		mic = $bindable(true),
 		hp = $bindable(true),
 		speaking = false,
-		username = $bindable(),
+		initial,
+		setter,
 	}: UserCardProps = $props();
 
 	let windowInFocus = $state(true);
 
 	let input: HTMLInputElement | null = $state(null);
-	let value = $state(username);
+	let value = $state(initial);
 </script>
 
 <div
@@ -70,19 +72,18 @@
 					: "border-(--secondary)/0 hover:border-(--secondary) focus:border-(--primary)",
 			]}
 			onkeydown={(e) => {
-				if (e.key === "Enter" && username.length) {
+				if ((e.key === "Enter" || e.key === "Escape" || e.key == "Esc") && value.length) {
 					input?.blur();
 				}
 			}}
 			onfocusout={() => {
-				if (!value.length) {
-					value = username;
+				if (value.length) {
+					setter(value);
 				}
-				username = value;
 			}}
 		/>
 	{:else}
-		<span class="h-min w-full truncate">{username}</span>
+		<span class="h-min w-full truncate">{value}</span>
 	{/if}
 	<div class="flex size-max gap-[7px]">
 		{#if !mic}

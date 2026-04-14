@@ -3,16 +3,25 @@
 	import { fade } from "svelte/transition";
 
 	type SelectProps = {
-		value: string;
 		variant: "in" | "out";
-		options: string[];
+		optionsGetter: () => Promise<[string, string][]>;
+		selectedGetter: () => [string, string] | undefined;
+		selectedSetter: (value: string) => void;
 	};
 
-	let { value = $bindable(), variant, options = $bindable() }: SelectProps = $props();
+	let { variant, optionsGetter, selectedGetter, selectedSetter }: SelectProps = $props();
 
 	let select = $state<HTMLDivElement>();
 	let selectTrigger = $state<HTMLButtonElement>();
 	let isOpen = $state(false);
+
+	let selected = $state<string | undefined>(selectedGetter()?.[0]);
+	let name = $state<string>("Not selected");
+
+	let options = $state<[string, string][]>([]);
+	optionsGetter().then((ops) => {
+		ops.forEach((d) => options.push(d));
+	});
 
 	function handleOutsideClick(e: MouseEvent) {
 		const selectRect = select?.getBoundingClientRect();
@@ -34,6 +43,13 @@
 			window.addEventListener("mousedown", handleOutsideClick);
 		} else {
 			window.removeEventListener("mousedown", handleOutsideClick);
+		}
+	});
+
+	$effect(() => {
+		if (selected) {
+			selectedSetter(selected);
+			name = selectedGetter()![1];
 		}
 	});
 </script>
@@ -64,15 +80,15 @@
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
 					onclick={() => {
-						value = option;
+						selected = option[0];
 					}}
 					class="group relative flex h-[41px] min-h-[41px] w-full cursor-pointer items-center pr-[60px] pl-[20px] transition duration-200 hover:bg-(--border)"
 				>
 					<span
 						class="h-max w-full truncate text-[16px] font-normal tracking-[-0.06rem] text-(--primary) group-hover:text-(--accent)"
-						>{option}</span
+						>{option[1]}</span
 					>
-					{#if option == value}
+					{#if option[0] == selected}
 						<svg
 							width="21"
 							height="21"
@@ -103,7 +119,13 @@
 	bind:this={selectTrigger}
 	class="group relative flex size-full max-w-[50%] cursor-pointer items-center pr-[13px] pl-[45px] transition duration-200 hover:bg-(--border)"
 	onclick={() => {
-		isOpen = !isOpen;
+		optionsGetter().then((ops) => {
+			options.splice(0);
+			ops.forEach((d) => options.push(d));
+			selected = selectedGetter()?.[0];
+
+			isOpen = !isOpen;
+		});
 	}}
 >
 	{#if variant == "in"}
@@ -138,7 +160,7 @@
 	<span
 		class="truncate text-[16px] font-normal tracking-[-0.06rem] text-(--primary) transition duration-200 group-hover:text-(--accent)"
 	>
-		{value}
+		{name}
 	</span>
 </button>
 

@@ -2,22 +2,32 @@
 	import { Select, Slider } from "$lib";
 
 	type SelectDeviceProps = {
-		selected: string;
+		selectedGetter: () => [string, string] | undefined;
+		selectedSetter: (value: string) => void;
+		volumeSetter: (value: number) => void;
+		optionsGetter: () => Promise<[string, string][]>;
+		volumeInitial: number;
 		variant: "in" | "out";
-		options: string[];
-		value: number;
 	};
 
 	let {
-		selected = $bindable(),
+		selectedGetter,
+		selectedSetter,
+		volumeSetter,
+		optionsGetter,
+		volumeInitial,
 		variant,
-		options = $bindable(),
-		value = $bindable(),
 	}: SelectDeviceProps = $props();
+
+	let volume = $state(volumeInitial);
+
+	$effect(() => {
+		volumeSetter(volume);
+	});
 </script>
 
 <div class="flex size-full">
-	<Select {variant} bind:value={selected} bind:options />
+	<Select {variant} {selectedSetter} {selectedGetter} {optionsGetter} />
 	<div class="h-full w-px bg-(--border)"></div>
-	<Slider bind:value />
+	<Slider bind:volume />
 </div>

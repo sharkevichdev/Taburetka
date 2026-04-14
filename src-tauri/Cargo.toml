@@ -12,8 +12,10 @@ tauri = { version = "2.4.0", features = [] }
 tauri-plugin-dialog = "2.3.2"
 tauri-plugin-fs = "2"
 tauri-plugin-opener = "2"
+tauri-plugin-store = "2"
 tokio = "1.44.1"
 tokio-tungstenite = { version = "0.26.2", features = [] }
+uuid = { version = "1.23.0", features = ["v7", "serde"] }
 walkdir = "2.5.0"
 zip = "2.5.0"
 

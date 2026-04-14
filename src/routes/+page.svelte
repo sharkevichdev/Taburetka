@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { Button, UserCard } from "$lib";
-	import { app } from "$lib/shared.svelte";
+	import { AppContext } from "$lib/shared.svelte";
+
+	const appState = AppContext.get();
 </script>
 
 <div class="flex size-full">
-	<UserCard bind:username={app.username} />
+	<UserCard initial={appState.username} setter={appState.setUsername} />
 	<div class="h-full w-px bg-(--border)"></div>
 	<div class="flex h-full w-min flex-col">
 		<Button>
